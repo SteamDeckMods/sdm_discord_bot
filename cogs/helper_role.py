@@ -1,11 +1,17 @@
 from discord.ext import commands
+import discord
+import json
 
 
 class HelperRole(commands.Cog):
     """Manages all commands associated with the Helper Role"""
 
-    def __init__(self):
-        self.role = "Do this properly"
+    def __init__(self, bot):
+        self.bot = bot
+        with open("config.json", 'r') as config_file:
+            config = json.load(config_file)
+            self.helper_role = config["Discord"]["Roles"]["HELPER"]
+            self.timeout_role = config["Discord"]["Roles"]["TIMEOUT"]
 
     async def cog_check(self, ctx):
         """
@@ -13,6 +19,29 @@ class HelperRole(commands.Cog):
         from using any commands in this cog. This does not need to be called.
         """
         return self.role == ctx.author.id
+
+    @commands.command()
+    async def sitdown(self, ctx):
+        """Add a timeout role to a set of mentioned users"""
+        # TODO: I think there should be a few sanity checks about who we're
+        # muting. But what checks would be important?
+        for user in ctx.message.mentions:
+            try:
+                user.add_roles(
+                    discord.utils.get(ctx.guild.roles, id=self.timeout_role)
+                )
+            except discord.Forbidden as e:
+                ctx.send(f"Couldn't add the role to {user}! Error:\n{e}")
+
+    @commands.command()
+    async def sitdownrelease(self, ctx):
+        for user in ctx.message.mentions:
+            try:
+                user.remove_roles(
+                    discord.utils.get(ctx.guild.roles, id=self.timeout_role)
+                )
+            except discord.Forbidden as e:
+                ctx.send(f"Couldn't remove the role from {user}! Error:\n{e}")
 
 
 def setup(bot):
