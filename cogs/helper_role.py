@@ -18,7 +18,7 @@ class HelperRole(commands.Cog):
         Precheck that prevents anyone without the a apropriate role
         from using any commands in this cog. This does not need to be called.
         """
-        return self.role == ctx.author.id
+        return self.helper_role in [r.id for r in ctx.author.roles]
 
     @commands.command()
     async def sitdown(self, ctx):
@@ -27,21 +27,23 @@ class HelperRole(commands.Cog):
         # muting. But what checks would be important?
         for user in ctx.message.mentions:
             try:
-                user.add_roles(
+                await user.add_roles(
                     discord.utils.get(ctx.guild.roles, id=self.timeout_role)
                 )
             except discord.Forbidden as e:
                 ctx.send(f"Couldn't add the role to {user}! Error:\n{e}")
+        ctx.send("Added Timeout Role")
 
     @commands.command()
     async def sitdownrelease(self, ctx):
         for user in ctx.message.mentions:
             try:
-                user.remove_roles(
+                await user.remove_roles(
                     discord.utils.get(ctx.guild.roles, id=self.timeout_role)
                 )
             except discord.Forbidden as e:
                 ctx.send(f"Couldn't remove the role from {user}! Error:\n{e}")
+        ctx.send("Removed Timeout Role")
 
 
 def setup(bot):
