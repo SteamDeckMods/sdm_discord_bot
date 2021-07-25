@@ -24,7 +24,7 @@ class ResearcherRole(commands.Cog):
         Precheck that prevents anyone without the a apropriate role
         from using any commands in this cog. This does not need to be called.
         """
-        return self.role == ctx.author.id
+        return self.researcher_role in [r.id for r in ctx.author.roles]
 
     @commands.command()
     async def scoopnotification(self, ctx):
