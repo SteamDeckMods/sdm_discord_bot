@@ -28,6 +28,7 @@ class ResearcherRole(commands.Cog):
 
     @commands.command()
     async def scoopnotification(self, ctx):
+        """Sends a notification in the Scoop channel"""
         if ctx.message.channel.id == self.research_channel:
             try:
                 await self.bot.get_channel(self.news_channel).send(
