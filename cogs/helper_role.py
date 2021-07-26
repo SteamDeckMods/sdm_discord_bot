@@ -15,7 +15,7 @@ class HelperRole(commands.Cog):
 
     async def cog_check(self, ctx):
         """
-        Precheck that prevents anyone without the a apropriate role
+        Precheck that prevents anyone without an apropriate role
         from using any commands in this cog. This does not need to be called.
         """
         return self.helper_role in [r.id for r in ctx.author.roles]
