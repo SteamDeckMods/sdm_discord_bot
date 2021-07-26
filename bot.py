@@ -25,13 +25,16 @@ async def reload(ctx):
     if bot_Dev_role not in [r.id for r in ctx.author.roles]:
         ctx.send("No.")
         return
-    ctx.send("Reloading Module!")
+    await ctx.send("Reloading Module!")
     try:
         bot.reload_extension(ctx.message.content.split(" ")[1])
     except commands.ExtensionNotFound:
         await ctx.send("Couldn't find Extension!")
     except commands.ExtensionFailed as e:
         await ctx.send(f"Extension failed to load! Error:\n{e}")
+        raise
+    except commands.ExtensionNotLoaded as e:
+        await ctx.send(f"Extension was not loaded to begin with! Error:\n{e}")
         raise
 
 
