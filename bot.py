@@ -23,24 +23,25 @@ cogs = [
 async def reload(ctx):
     """Development Command to reload extensions for texting"""
     if bot_Dev_role not in [r.id for r in ctx.author.roles]:
-        ctx.send("No.")
+        #ctx.send("No.")
+        #Let's keep the bot discrete :)
         return
-    await ctx.send("Reloading Module!")
+    await ctx.send("Module reloaded successfully.")
     try:
         bot.reload_extension(ctx.message.content.split(" ")[1])
     except commands.ExtensionNotFound:
-        await ctx.send("Couldn't find Extension!")
+        await ctx.send("Couldn't find extension.")
     except commands.ExtensionFailed as e:
-        await ctx.send(f"Extension failed to load! Error:\n{e}")
+        await ctx.send(f"Extension failed to load. Error:\n{e}")
         raise
     except commands.ExtensionNotLoaded as e:
-        await ctx.send(f"Extension was not loaded to begin with! Error:\n{e}")
+        await ctx.send(f"Extension was not loaded to begin with. Error:\n{e}")
         raise
 
 
 @bot.event
 async def on_ready():
-    print("Steam Deck bot operational!")
+    print("Steam Deck Bot online.")
 
 
 if __name__ == '__main__':

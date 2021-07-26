@@ -5,7 +5,7 @@ import discord
 
 
 class ResearcherRole(commands.Cog):
-    """Manages all commands associated with the Helper Role"""
+    """Manages all commands associated with the Researcher Role"""
 
     def __init__(self, bot):
         self.bot = bot
@@ -15,11 +15,11 @@ class ResearcherRole(commands.Cog):
             config = json.load(config_file)
 
             # Load Relevant Roles
-            self.news_role = config["Discord"]["Roles"]["NEWS"]
+            self.newsjunkie_role = config["Discord"]["Roles"]["NEWSJUNKIE"]
             self.researcher_role = config["Discord"]["Roles"]["RESEARCHER"]
 
             # Load Relevant Channels
-            self.news_channel = config["Discord"]["Channels"]["NEWS"]
+            self.scoop_channel = config["Discord"]["Channels"]["SCOOP"]
             self.research_channel = config["Discord"]["Channels"]["RESEARCH"]
 
     async def cog_check(self, ctx):
@@ -36,19 +36,19 @@ class ResearcherRole(commands.Cog):
         Has a delay associated with it.
         """
         scoop_wait = self.last_scoop + self.DELAY
-        if scoop_wait > datetime.datetime.now():
-            await ctx.send(f"Can't send another scoop! Must wait till: {scoop_wait}")
+        if ctx.message.channel.id == self.research_channel and scoop_wait > datetime.datetime.now():
+            await ctx.send(f"Can't notify news junkies this soon after the last one. Please wait {(scoop_wait - datetime.datetime.now()).total_seconds()//60:.0f} minutes then try again.")
             return
         if ctx.message.channel.id == self.research_channel:
             try:
-                await self.bot.get_channel(self.news_channel).send(
+                await self.bot.get_channel(self.scoop_channel).send(
                     # TODO: There's a better way I'm just lazy
-                    f"<@&{self.news_role}> - a scoop has been posted below."
+                    f"<@&{self.newsjunkie_role}> - a new scoop has been posted!"
                 )
             except discord.Forbidden as e:
-                await ctx.send(f"Failed to send message!\n{e}")
+                await ctx.send(f"Failed to send notification to News Junkie.\n{e}")
                 raise
-            await ctx.send("Notified News Junkies in the Scoop channel.")
+            await ctx.send("Notified News Junkies in the scoop channel.")
             self.last_scoop = datetime.datetime.now()
 
 

@@ -11,7 +11,7 @@ class HelperRole(commands.Cog):
         with open("config.json", 'r') as config_file:
             config = json.load(config_file)
             self.helper_role = config["Discord"]["Roles"]["HELPER"]
-            self.timeout_role = config["Discord"]["Roles"]["TIMEOUT"]
+            self.sitdown_role = config["Discord"]["Roles"]["SITDOWN"]
 
     async def cog_check(self, ctx):
         """
@@ -22,26 +22,26 @@ class HelperRole(commands.Cog):
 
     @commands.command()
     async def sitdown(self, ctx):
-        """Add a timeout role to a set of mentioned users"""
+        """Add a sitdown role to a set of mentioned users"""
         for user in ctx.message.mentions:
             try:
                 await user.add_roles(
-                    discord.utils.get(ctx.guild.roles, id=self.timeout_role)
+                    discord.utils.get(ctx.guild.roles, id=self.sitdown_role)
                 )
             except discord.Forbidden as e:
-                ctx.send(f"Couldn't add the role to {user}! Error:\n{e}")
-        ctx.send("Added Timeout Role")
+                await ctx.send(f"Couldn't put {user} in sit-down. Error:\n{e}")
+            await ctx.send(f"Added {user} to sit-down")
 
     @commands.command()
     async def sitdownrelease(self, ctx):
         for user in ctx.message.mentions:
             try:
                 await user.remove_roles(
-                    discord.utils.get(ctx.guild.roles, id=self.timeout_role)
+                    discord.utils.get(ctx.guild.roles, id=self.sitdown_role)
                 )
             except discord.Forbidden as e:
-                ctx.send(f"Couldn't remove the role from {user}! Error:\n{e}")
-        ctx.send("Removed Timeout Role")
+                await ctx.send(f"Couldn't remove {user} from sit-down. Error:\n{e}")
+            await ctx.send(f"Released {user} from sit-down")
 
 
 def setup(bot):
