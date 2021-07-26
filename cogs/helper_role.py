@@ -23,8 +23,6 @@ class HelperRole(commands.Cog):
     @commands.command()
     async def sitdown(self, ctx):
         """Add a timeout role to a set of mentioned users"""
-        # TODO: I think there should be a few sanity checks about who we're
-        # muting. But what checks would be important?
         for user in ctx.message.mentions:
             try:
                 await user.add_roles(
