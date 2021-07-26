@@ -1,3 +1,4 @@
+import datetime
 from discord.ext import commands
 import json
 import discord
@@ -8,6 +9,8 @@ class ResearcherRole(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.DELAY = datetime.timedelta(minutes=10)
+        self.last_scoop = datetime.datetime.now() - self.DELAY
         with open("config.json", 'r') as config_file:
             config = json.load(config_file)
 
@@ -21,14 +24,21 @@ class ResearcherRole(commands.Cog):
 
     async def cog_check(self, ctx):
         """
-        Precheck that prevents anyone without an apropriate role
+        Precheck that prevents anyone without an appropriate role
         from using any commands in this cog. This does not need to be called.
         """
         return self.researcher_role in [r.id for r in ctx.author.roles]
 
     @commands.command()
     async def scoopnotification(self, ctx):
-        """Sends a notification in the Scoop channel"""
+        """
+        Sends a notification in the Scoop channel
+        Has a delay associated with it.
+        """
+        scoop_wait = self.last_scoop + self.DELAY
+        if scoop_wait > datetime.datetime.now():
+            await ctx.send(f"Can't send another scoop! Must wait till: {scoop_wait}")
+            return
         if ctx.message.channel.id == self.research_channel:
             try:
                 await self.bot.get_channel(self.news_channel).send(
@@ -39,6 +49,7 @@ class ResearcherRole(commands.Cog):
                 await ctx.send(f"Failed to send message!\n{e}")
                 raise
             await ctx.send("Notified News Junkies in the Scoop channel.")
+            self.last_scoop = datetime.datetime.now()
 
 
 def setup(bot):
