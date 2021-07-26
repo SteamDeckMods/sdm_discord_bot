@@ -9,7 +9,7 @@ class ResearcherRole(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.DELAY = datetime.timedelta(minutes=10)
+        self.DELAY = datetime.timedelta(hours=1)
         self.last_scoop = datetime.datetime.now() - self.DELAY
         with open("config.json", 'r') as config_file:
             config = json.load(config_file)
