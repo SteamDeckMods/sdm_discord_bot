@@ -43,6 +43,10 @@ class HelperRole(commands.Cog):
                 await ctx.send(f"Couldn't remove {user} from sit-down. Error:\n{e}")
             await ctx.send(f"Released {user} from sit-down")
 
+    @commands.command()
+    async def ping(self, ctx):
+        await ctx.send("pong!")
+
 
 def setup(bot):
     bot.add_cog(HelperRole(bot))

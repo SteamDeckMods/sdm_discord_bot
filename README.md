@@ -12,6 +12,9 @@ Removes users from the sit-down role
 * `scoopnotification`
 Allows users with enough permissions to notify News Junkies in the scoop channel.
 
+* `ping`
+Responds with pong!
+
 
 A config.json file is required for the bot to run. It looks like this;
 ```json
