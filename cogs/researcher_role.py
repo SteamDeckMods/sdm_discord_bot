@@ -43,7 +43,7 @@ class ResearcherRole(commands.Cog):
             try:
                 await self.bot.get_channel(self.scoop_channel).send(
                     # TODO: There's a better way I'm just lazy
-                    f"<@&{self.newsjunkie_role}> - a new scoop has been posted!"
+                    f"<@&{self.newsjunkie_role}> - a new scoop is here!"
                 )
             except discord.Forbidden as e:
                 await ctx.send(f"Failed to send notification to News Junkie.\n{e}")
