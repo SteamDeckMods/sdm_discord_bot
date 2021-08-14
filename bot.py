@@ -15,7 +15,8 @@ bot = commands.Bot(command_prefix=conf["Discord"]["COMMAND_PREFIX"])
 # Format for a cog is folder.file_name
 cogs = [
     'cogs.helper_role',
-    'cogs.researcher_role'
+    'cogs.researcher_role',
+    'cogs.censor'
 ]
 
 
@@ -23,8 +24,6 @@ cogs = [
 async def reload(ctx):
     """Development Command to reload extensions for texting"""
     if bot_Dev_role not in [r.id for r in ctx.author.roles]:
-        #ctx.send("No.")
-        #Let's keep the bot discrete :)
         return
     await ctx.send("Module reloaded successfully.")
     try:
