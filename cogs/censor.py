@@ -14,6 +14,8 @@ class Censor(commands.Cog):
             self.helper_role = config["Discord"]["Roles"]["HELPER"]
 
     async def censorable(self, ctx):
+        if ctx.message.guild is None or ctx.message.webhook_id:
+            return False
         return self.helper_role not in [r.id for r in ctx.author.roles]
 
     @commands.Cog.listener(name="on_message")
