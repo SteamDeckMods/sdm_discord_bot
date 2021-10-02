@@ -12,8 +12,17 @@ class Censor(commands.Cog):
         with open("config.json", 'r') as config_file:
             config = json.load(config_file)
             self.helper_role = config["Discord"]["Roles"]["HELPER"]
+            self.trigger_channel = config["Discord"]["Channels"]["TRIGGER"]
+
+        try:
+            with open("TriggerPhrases.json", 'r') as trigger_wordfile:
+                self.trigger_phrases = json.load(trigger_wordfile)
+        except FileNotFoundError:
+            print("File for trigger phrases not found")
 
     async def censorable(self, ctx):
+        if ctx.message.guild is None or ctx.message.webhook_id:
+            return False
         return self.helper_role not in [r.id for r in ctx.author.roles]
 
     @commands.Cog.listener(name="on_message")
@@ -26,10 +35,23 @@ class Censor(commands.Cog):
             if word in checking:
                 await msg.delete()
                 response = self.censored[word]
+                try:
+                    response = response.format(mention=msg.author.mention)
+                except KeyError:
+                    pass
                 if response != "":
                     await msg.channel.send(response)
                 else:
                     await msg.channel.send("No")
+
+    @commands.Cog.listener(name="on_message")
+    async def triger_warnings(self, msg):
+        for phrase in self.trigger_phrases:
+            if phrase in msg.content.lower():
+                await self.bot.get_channel(
+                    self.trigger_channel).send(
+                    f"@Helper be advised, {msg.author} said trigger word \"{phrase}\" in {msg.channel}."
+                )
 
 
 def setup(bot):
