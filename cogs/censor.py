@@ -46,11 +46,13 @@ class Censor(commands.Cog):
 
     @commands.Cog.listener(name="on_message")
     async def triger_warnings(self, msg):
+        if msg.author == self.bot.user:
+            return
         for phrase in self.trigger_phrases:
             if phrase in msg.content.lower():
                 await self.bot.get_channel(
                     self.trigger_channel).send(
-                    f"@Helper be advised, {msg.author} said trigger word \"{phrase}\" in {msg.channel}."
+                    f"<@&{self.helper_role}> be advised, {msg.author.mention} said trigger word \"{phrase}\" in #{msg.channel.mention}."
                 )
 
 
