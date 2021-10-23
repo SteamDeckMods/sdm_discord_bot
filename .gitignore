@@ -3,3 +3,4 @@ config.py
 .venv/*
 .vscode/*
 config.json
+TriggerPhrases.json
