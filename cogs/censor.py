@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord import Embed
 import json
 
 
@@ -46,14 +47,27 @@ class Censor(commands.Cog):
 
     @commands.Cog.listener(name="on_message")
     async def trigger_warnings(self, msg):
-        if msg.author == self.bot.user:
+        if msg.author == self.bot.user or not await self.censorable(msg):
             return
+        triggered_phrases = []
         for phrase in self.trigger_phrases:
             if phrase in msg.content.lower():
-                await self.bot.get_channel(
-                    self.trigger_channel).send(
-                    f"<@&{self.helper_role}> be advised, {msg.author.mention} said trigger word \"{phrase}\" in #{msg.channel.mention}."
-                )
+                triggered_phrases.append(phrase)
+        if len(triggered_phrases) != 0:
+            # link to message
+            msg_link = f"https://discord.com/channels/{msg.channel.guild.id}/{msg.channel.id}/{msg.id}"
+            # quote and command-separated str of phrases
+            phrases = "\"" + "\", \"".join(triggered_phrases) + "\""
+            # message text
+            content = f"<@&{self.helper_role}> be advised, {msg.author.mention} said trigger word(s) {phrases} in {msg.channel.mention}."
+            # build embed to send
+            embed = Embed(description = msg.content, colour=0x000000)\
+                .set_author(name="Message", url=msg_link)
+
+            await self.bot.get_channel(self.trigger_channel).send(
+                content = content,
+                embed = embed
+            )
 
 def setup(bot):
     bot.add_cog(Censor(bot))
