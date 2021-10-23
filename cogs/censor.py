@@ -1,6 +1,7 @@
 from discord.ext import commands
 from discord import Embed
 import json
+import re  # regex
 
 
 class Censor(commands.Cog):
@@ -18,6 +19,8 @@ class Censor(commands.Cog):
         try:
             with open("TriggerPhrases.json", 'r') as trigger_wordfile:
                 self.trigger_phrases = json.load(trigger_wordfile)
+            # TODO name these regex patterns, so it's obvious that e.g. "a$$h0le" warn is from "a.{0,2}\s*h[0o]le" pattern
+            self.trigger_regexes = [re.compile(phrase, flags=re.I | re.M) for phrase in self.trigger_phrases]
         except FileNotFoundError:
             print("File for trigger phrases not found")
 
@@ -49,10 +52,12 @@ class Censor(commands.Cog):
     async def trigger_warnings(self, msg):
         if msg.author == self.bot.user or not await self.censorable(msg):
             return
+        # search for phrase matches
         triggered_phrases = []
-        for phrase in self.trigger_phrases:
-            if phrase in msg.content.lower():
-                triggered_phrases.append(phrase)
+        for pattern in self.trigger_regexes:
+            match = pattern.search(msg.content)
+            if match is not None:
+                triggered_phrases.append(match.group(0))
         if len(triggered_phrases) != 0:
             # link to message
             msg_link = f"https://discord.com/channels/{msg.channel.guild.id}/{msg.channel.id}/{msg.id}"
@@ -63,6 +68,7 @@ class Censor(commands.Cog):
             # build embed to send
             embed = Embed(description = msg.content, colour=0x000000)\
                 .set_author(name="Message", url=msg_link)
+            # content max length is 2000, while description max is 4096 chars so this limit should never be hit
 
             await self.bot.get_channel(self.trigger_channel).send(
                 content = content,
