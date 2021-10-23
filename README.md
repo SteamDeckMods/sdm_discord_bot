@@ -33,8 +33,19 @@ A config.json file is required for the bot to run. It looks like this;
 
         "Channels" : {
             "RESEARCH" : 867125657737232395,
-            "SCOOP" : 865802501470683186
+            "SCOOP" : 865802501470683186,
+            "TRIGGER" : 891017227418099763
         }
     }
 }
+```
+
+The censor cog uses other configuration files as well.
+A sample Censor.json is included, but TriggerPhrases.json is not.
+TriggerPhrases.json looks something like this;
+```json
+[
+    "trigger #1",
+    "another trigger phrase",
+]
 ```
