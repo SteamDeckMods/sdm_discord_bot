@@ -21,7 +21,7 @@ class Censor(commands.Cog):
             print("File for trigger phrases not found")
 
     async def censorable(self, ctx):
-        if ctx.message.guild is None or ctx.message.webhook_id:
+        if ctx.channel.guild is None or ctx.webhook_id is not None:
             return False
         return self.helper_role not in [r.id for r in ctx.author.roles]
 
@@ -45,7 +45,7 @@ class Censor(commands.Cog):
                     await msg.channel.send("No")
 
     @commands.Cog.listener(name="on_message")
-    async def triger_warnings(self, msg):
+    async def trigger_warnings(self, msg):
         if msg.author == self.bot.user:
             return
         for phrase in self.trigger_phrases:
@@ -54,7 +54,6 @@ class Censor(commands.Cog):
                     self.trigger_channel).send(
                     f"<@&{self.helper_role}> be advised, {msg.author.mention} said trigger word \"{phrase}\" in #{msg.channel.mention}."
                 )
-
 
 def setup(bot):
     bot.add_cog(Censor(bot))
