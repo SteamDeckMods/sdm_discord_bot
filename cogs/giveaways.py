@@ -17,7 +17,7 @@ class Giveaway(commands.Cog):
         
         with open("config.json", 'r') as config_file:
             config = json.load(config_file)
-            self.helper_role = config["Discord"]["Roles"]["HELPER"]
+            self.admin_role = config["Discord"]["Roles"]["ADMIN"]
         
         if not pathlib.Path(self.giveaway_csv).is_file():
             self.make_new_csv()
@@ -26,8 +26,8 @@ class Giveaway(commands.Cog):
     def cog_unload(self):
         self.output_file.close()
         
-    def has_helper_role(self, member):
-        return self.helper_role in [r.id for r in member.roles] or True
+    def has_admin_role(self, member):
+        return self.admin_role in [r.id for r in member.roles]
     
     def has_giveaway_role(self, member):
         return self.giveaway_role in [r.id for r in member.roles]
@@ -47,7 +47,7 @@ class Giveaway(commands.Cog):
             # log user activity to csv if in giveaway channel
             has_role = int(self.has_giveaway_role(msg.author))
             line = f"{int(time.time())},{msg.author.name},{msg.author.id},{has_role}"
-            print("Activity:", line)
+            #print("Activity:", line)
             self.output_file.write(line)
             self.output_file.write("\n")
             self.write_count += 1
@@ -55,10 +55,10 @@ class Giveaway(commands.Cog):
                 self.output_file.flush()  # force write to disk
                 self.write_count = 0
     
-    @commands.command(name="csv-yeet")
+    @commands.command(name="csv-cleargiveaway")
     async def giveup(self, msg):
         """Clear and restart the giveaway CSV file"""
-        if not self.has_helper_role(msg.author):
+        if not self.has_admin_role(msg.author):
             await msg.channel.send("I don't trust you")
             return
         self.output_file.close()
