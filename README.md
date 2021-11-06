@@ -28,7 +28,8 @@ A config.json file is required for the bot to run. It looks like this;
             "HELPER": 866128683809767474,
             "RESEARCHER": 867125502833852426,
             "NEWSJUNKIE": 865654074274873374,
-            "SITDOWN": 866796838098042880
+            "SITDOWN": 866796838098042880,
+            "ADMIN": 865684680195964998
         },
 
         "Channels" : {

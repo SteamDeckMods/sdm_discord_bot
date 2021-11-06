@@ -16,7 +16,8 @@ bot = commands.Bot(command_prefix=conf["Discord"]["COMMAND_PREFIX"])
 cogs = [
     'cogs.helper_role',
     'cogs.researcher_role',
-    'cogs.censor'
+    'cogs.censor',
+    'cogs.giveaways',
 ]
 
 
