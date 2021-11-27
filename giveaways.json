@@ -9,6 +9,7 @@
     },
     "Giveaway": {
         "writes_per_flush": 1,
-        "csv": "giveaways_log.csv"
+        "csv": "giveaways_log.csv",
+        "sanitised_characters": ["\n", ","]
     }
 }
