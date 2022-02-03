@@ -43,7 +43,7 @@ class Giveaway(commands.Cog):
     def make_new_csv(self):
         """Generate CSV with header"""
         with open(self.giveaway_csv, 'w') as csv_file:
-            csv_file.write("Unix Timestamp,Username,User ID,Has Role?,Booster,Patron")
+            csv_file.write("Unix Timestamp,Username,User ID,Giveaway,Booster,Patron")
             csv_file.write("\n")
     
     @commands.Cog.listener(name="on_message")
@@ -53,10 +53,10 @@ class Giveaway(commands.Cog):
             return
         if msg.channel.id == self.giveaway_channel:
             # log user activity to csv if in giveaway channel
-            has_role = int(self.has_giveaway_role(msg.author))
+            giveaway = int(self.has_giveaway_role(msg.author))
             booster = int(self.has_booster_role(msg.author))
             patron = int(self.has_patron_role(msg.author))
-            line = f"{int(time.time())},{msg.author.name},{msg.author.id},{has_role},{booster},{patron}"
+            line = f"{int(time.time())},{msg.author.name},{msg.author.id},{giveaway},{booster},{patron}"
             #print("Activity:", line)
             self.output_file.write(line)
             self.output_file.write("\n")
