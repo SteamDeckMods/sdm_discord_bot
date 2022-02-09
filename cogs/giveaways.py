@@ -16,6 +16,7 @@ class Giveaway(commands.Cog):
             self.patron_role = self.config["Discord"]["Roles"]["PATRON"]
             self.writes_per_flush = self.config["Giveaway"]["writes_per_flush"]
             self.giveaway_csv = self.config["Giveaway"]["csv"]
+            self.sanitised_chars = self.config["Giveaway"]["sanitised_characters"]
         
         with open("config.json", 'r') as config_file:
             config = json.load(config_file)
@@ -56,7 +57,10 @@ class Giveaway(commands.Cog):
             giveaway = int(self.has_giveaway_role(msg.author))
             booster = int(self.has_booster_role(msg.author))
             patron = int(self.has_patron_role(msg.author))
-            line = f"{int(time.time())},{msg.author.name},{msg.author.id},{giveaway},{booster},{patron}"
+            sanitised_name = msg.author.name
+            for chars in self.sanitised_chars:
+                sanitised_name = sanitised_name.replace(chars, "")
+            line = f"{int(time.time())},{sanitised_name},{msg.author.id},{giveaway},{booster},{patron}"
             #print("Activity:", line)
             self.output_file.write(line)
             self.output_file.write("\n")
