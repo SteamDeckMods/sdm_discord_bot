@@ -12,6 +12,8 @@ class Giveaway(commands.Cog):
             self.config = json.load(giveaway_config_file)
             self.giveaway_channel = self.config["Discord"]["Channels"]["GIVEAWAY"]
             self.giveaway_role = self.config["Discord"]["Roles"]["GIVEAWAY"]
+            self.booster_role = self.config["Discord"]["Roles"]["BOOSTER"]
+            self.patron_role = self.config["Discord"]["Roles"]["PATRON"]
             self.writes_per_flush = self.config["Giveaway"]["writes_per_flush"]
             self.giveaway_csv = self.config["Giveaway"]["csv"]
             self.sanitised_chars = self.config["Giveaway"]["sanitised_characters"]
@@ -32,11 +34,17 @@ class Giveaway(commands.Cog):
     
     def has_giveaway_role(self, member):
         return self.giveaway_role in [r.id for r in member.roles]
-    
+
+    def has_booster_role(self, member):
+        return self.booster_role in [r.id for r in member.roles]
+
+    def has_patron_role(self, member):
+        return self.patron_role in [r.id for r in member.roles]
+
     def make_new_csv(self):
         """Generate CSV with header"""
         with open(self.giveaway_csv, 'w') as csv_file:
-            csv_file.write("Unix Timestamp,Username,User ID,Has Role?")
+            csv_file.write("Unix Timestamp,Username,User ID,Giveaway,Booster,Patron")
             csv_file.write("\n")
     
     @commands.Cog.listener(name="on_message")
@@ -46,11 +54,13 @@ class Giveaway(commands.Cog):
             return
         if msg.channel.id == self.giveaway_channel:
             # log user activity to csv if in giveaway channel
-            has_role = int(self.has_giveaway_role(msg.author))
+            giveaway = int(self.has_giveaway_role(msg.author))
+            booster = int(self.has_booster_role(msg.author))
+            patron = int(self.has_patron_role(msg.author))
             sanitised_name = msg.author.name
             for chars in self.sanitised_chars:
                 sanitised_name = sanitised_name.replace(chars, "")
-            line = f"{int(time.time())},{sanitised_name},{msg.author.id},{has_role}"
+            line = f"{int(time.time())},{sanitised_name},{msg.author.id},{giveaway},{booster},{patron}"
             #print("Activity:", line)
             self.output_file.write(line)
             self.output_file.write("\n")
