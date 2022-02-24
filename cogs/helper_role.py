@@ -20,7 +20,7 @@ class HelperRole(commands.Cog):
         """
         return self.helper_role in [r.id for r in ctx.author.roles]
 
-    @commands.command()
+    #@commands.command()
     async def sitdown(self, ctx):
         """Add a sitdown role to a set of mentioned users"""
         for user in ctx.message.mentions:
@@ -32,7 +32,7 @@ class HelperRole(commands.Cog):
                 await ctx.send(f"Couldn't put {user} in sit-down. Error:\n{e}")
             await ctx.send(f"Added {user} to sit-down")
 
-    @commands.command()
+    #@commands.command()
     async def sitdownrelease(self, ctx):
         for user in ctx.message.mentions:
             try:
