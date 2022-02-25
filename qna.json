@@ -1,0 +1,16 @@
+{
+    "Discord": {
+        "Channels": {
+            "QNA": 942468602118942750
+        },
+        "Emojis": {
+            "UPVOTE": "👍"
+        }
+    },
+    "Apache": {
+        "site_root": "/var/www/html",
+        "filename": "tally.html",
+        "truncate": 0
+    }
+}
+
