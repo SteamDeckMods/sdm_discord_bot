@@ -6,3 +6,4 @@ config.json
 TriggerPhrases.json
 giveaways*.csv
 giveaways-*.json
+*.html

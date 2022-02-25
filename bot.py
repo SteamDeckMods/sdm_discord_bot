@@ -18,6 +18,7 @@ cogs = [
     'cogs.researcher_role',
     'cogs.censor',
     'cogs.giveaways',
+    'cogs.qna',
 ]
 
 
