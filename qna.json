@@ -10,7 +10,8 @@
     "Apache": {
         "site_root": "/var/www/html",
         "filename": "tally.html",
-        "truncate": 0
+        "truncate": 0,
+        "stylesheet": "tally.css"
     }
 }
 
