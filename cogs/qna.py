@@ -4,7 +4,7 @@ import json
 
 
 class QnAHelper(commands.Cog):
-    """Manages all stuff associated with the Q&A Channel"""
+    """(Jankily) Manages all stuff associated with the Q&A Channel"""
 
     def __init__(self, bot):
         self.bot = bot
@@ -14,6 +14,7 @@ class QnAHelper(commands.Cog):
             self.qna_upvote = config["Discord"]["Emojis"]["UPVOTE"]
             self.html_out = config["Apache"]["site_root"] + "/" + config["Apache"]["filename"]
             self.truncate = int(config["Apache"]["truncate"])
+            self.stylesheet_href = config["Apache"]["stylesheet"]
         self.questions = dict()
         #self.debug_questions.start()
         self.generate_html_output.start()
@@ -27,34 +28,48 @@ class QnAHelper(commands.Cog):
         Precheck that prevents anyone without an apropriate role
         from using any commands in this cog. This does not need to be called.
         """
-        return self.helper_role in [r.id for r in ctx.author.roles]
+        # note that this doesn't do anything atm because there are no commands
+        return msg.channel.id == self.qna_channel
 
     @commands.Cog.listener(name="on_message")
     async def new_question(self, msg):
-        self.questions[msg.id] = (msg.id, msg.content, 0)
+        if msg.channel.id != self.qna_channel:
+            return
+        self.questions[msg.id] = (msg.id, msg.content, 0, self.user_name(msg.author))
 
     @commands.Cog.listener(name="on_message_delete")
     async def question_removed(self, msg):
+        if msg.channel.id != self.qna_channel:
+            return
         if msg.id in self.questions:
             del(self.questions[msg.id])
 
     @commands.Cog.listener(name="on_message_edit")
-    async def question_modified(self, msg):
-        self.questions[msg.id] = (msg.id, msg.content, 0)
+    async def question_modified(self, msg_before, msg):
+        if msg.channel.id != self.qna_channel:
+            return
+        if msg.content == "":
+            await self.question_removed(msg)
+        else:
+            self.questions[msg.id] = (msg.id, msg.content, 0, self.user_name(msg.author))
 
     @commands.Cog.listener(name="on_raw_reaction_add")
     async def question_vote_added(self, event):
+        if event.channel_id != self.qna_channel:
+            return
         if event.emoji.name != self.qna_upvote or event.message_id not in self.questions:
             return
         old_val = self.questions[event.message_id]
-        self.questions[event.message_id] = (old_val[0], old_val[1], old_val[2]+1)
+        self.questions[event.message_id] = (old_val[0], old_val[1], old_val[2]+1, old_val[3])
 
     @commands.Cog.listener(name="on_raw_reaction_remove")
     async def question_vote_removed(self, event):
+        if event.channel_id != self.qna_channel:
+            return
         if event.emoji.name != self.qna_upvote or event.message_id not in self.questions:
             return
         old_val = self.questions[event.message_id]
-        self.questions[event.message_id] = (old_val[0], old_val[1], old_val[2]-1)
+        self.questions[event.message_id] = (old_val[0], old_val[1], old_val[2]-1, old_val[3])
 
     @tasks.loop(seconds=5.0)
     async def debug_questions(self):
@@ -62,7 +77,7 @@ class QnAHelper(commands.Cog):
         sorted_questions = self.sort_questions()
         sorted_strs = list()
         for q in sorted_questions:
-            sorted_strs.append(f"msg `{q[1]}` has {q[2]} votes")
+            sorted_strs.append(f"msg `{q[1]}` from {q[3]} has {q[2]} votes")
         print("\n".join(sorted_strs))
 
     @tasks.loop(seconds=5.0)
@@ -75,16 +90,25 @@ class QnAHelper(commands.Cog):
         # generate some HTML the bad/stupid way
         for q in sorted_questions:
             sanitised = q[1].replace(">", "").replace("<", "")
-            sorted_strs.append(f"<tr><th>{sanitised}</th><th>{q[2]}</th></tr>")
+            sorted_strs.append(f"<tr><td>{q[3]}</td><td>{sanitised}</td><td>{q[2]}</td></tr>")
         table_innards = "\n".join(sorted_strs)
-        table = "<table><tr><th>Message</th><th>Votes</th></tr>" + table_innards + "</table>"
-        page = "<head><title>Q&A Vote Tally</title><meta charset=\"utf-8\"></head><body><h1 style=\"display: none;\">Questions, ordered by popularity as jankily judged by the SDM Discord Bot</h1>" + table + "</body>"
+        stylesheet = ""
+        if self.stylesheet_href != "":
+            stylesheet = f"<link rel=\"stylesheet\" type=\"text/css\" href=\"{self.stylesheet_href}\" media=\"screen\" />"
+        table = "<table><tr><th>Author</th><th>Message</th><th>Votes</th></tr>" + table_innards + "</table>"
+        page = "<head><title>Q&A Vote Tally</title><meta charset=\"utf-8\">" + stylesheet + "</head><body><h1 style=\"display: none;\">Questions, ordered by popularity as jankily judged by the SDM Discord Bot</h1>" + table + "</body>"
         with open(self.html_out, 'w') as html_file:
             html_file.write(page)
 
     def sort_questions(self):
         values = sorted(self.questions.values(), key = lambda item: item[2], reverse = True)
         return values
+
+    def user_name(self, member):
+        if member.nick is None:
+            return member.name
+        else:
+            return member.nick
 
 
 
